@@ -1,0 +1,64 @@
+@import '../../Styles/Variables/colors.scss';
+
+.user {
+    position: absolute;
+    top: 10px;
+    right: 45px;
+    background-color: rgba(0, 0, 0, 0.5); /* Color de fondo semi-transparente */
+    padding: 10px;
+    border-radius: 5px; /* Borde redondeado */
+    
+}
+
+/* Ajusta los estilos de los elementos hijos según sea necesario */
+.user__name {
+    font-weight: bold;
+    margin-right: 5px; 
+}
+.user__checkbox {
+    position: relative;
+    z-index: 1000; // Ajusta el valor según sea necesario para que esté por encima de otros elementos
+    margin-right: 10px; // Ajusta el margen según sea necesario
+}
+
+.user__img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #333;
+    margin-left: 5px;
+}
+
+.user__menu {
+    user-select: none;
+    margin-left: 65px;
+
+}
+
+.user__menu__button {
+    color: #fff;
+    z-index: 999;
+    font-size: 20px; /* Ajusta el tamaño del texto del botón */
+    padding: 10px 30px; /* Ajusta el padding del botón */
+    text-align: center; /* Centra el texto del botón */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0; /* Elimina el margen derecho para centrar el botón */
+    margin-left: auto; /* Centra el botón horizontalmente */
+    width: fit-content; /* Ajusta el ancho del botón al contenido */
+    height: 60px; 
+}
+
+/* Agregar barra distintiva */
+.user::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 10px; /* Ancho de la barra */
+    height: 100%;
+    background-color: red; /* Color de la barra */
+    border-top-right-radius: 5px; /* Borde redondeado superior derecho */
+    border-bottom-right-radius: 5px; /* Borde redondeado inferior derecho */
+}

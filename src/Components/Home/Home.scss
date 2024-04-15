@@ -1,0 +1,254 @@
+.boddys {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-image: url("../../Accets/fondo-dibujos-animados-3d-ninos_23-2150473128.avif");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+
+}
+
+.Titulo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 34px;
+    margin-top: 20px;
+}
+
+/* YourComponentStyles.module.css */
+.image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px;
+    /* You can adjust this value to fit your needs */
+    background-color: #f0f0f0;
+    /* You can adjust this value to fit your needs */
+}
+
+.your-image {
+    width: 80%;
+    /* You can adjust this value to fit your needs */
+    height: auto;
+    /* This will maintain the aspect ratio of the image */
+    border-radius: 5px;
+    /* You can adjust this value to fit your needs */
+}
+
+.video-container {
+    margin: 100px;
+    background-color: transparent;
+    position: absolute;
+    top: 55%;
+    left: 105%;
+    transform: translate(-108%, -82%);
+
+    width: 400px;
+    border-radius: 10px;
+    color: white;
+    padding: 0;
+}
+
+.video {
+    max-width: 800px;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+
+//botton de agregar
+.icon-botton {
+    width: 50px;
+    height: 50px;
+    top: 50;
+    border: 1px solid #cdcdcd;
+    background: white;
+    border-radius: 25px;
+    overflow: hidden;
+    position: relative;
+    transition: width 0.2s ease-in-out;
+    font-weight: 500;
+    font-family: inherit;
+}
+
+.add-botton:hover {
+    width: 120px;
+}
+
+.add-botton::before,
+.add-botton::after {
+    transition: width 0.2s ease-in-out, border-radius 0.2s ease-in-out;
+    content: "";
+    position: absolute;
+    height: 4px;
+    width: 10px;
+    top: calc(50% - 2px);
+    background:#eb092f;
+}
+
+.add-botton::after {
+    right: 14px;
+    overflow: hidden;
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+
+.add-botton::before {
+    left: 14px;
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
+}
+
+.icon-botton:focus {
+    outline: none;
+}
+
+.botton-txt {
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.add-botton:hover::before,
+.add-botton:hover::after {
+    width: 4px;
+    border-radius: 2px;
+}
+
+.add-botton:hover .botton-txt {
+    opacity: 1;
+}
+
+.add-icon::after,
+.add-icon::before {
+    transition: all 0.2s ease-in-out;
+    content: "";
+    position: absolute;
+    height: 20px;
+    width: 2px;
+    top: calc(50% - 10px);
+    background: #eb092f;
+    overflow: hidden;
+}
+
+.add-icon::before {
+    left: 22px;
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
+}
+
+.add-icon::after {
+    right: 22px;
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+
+.add-botton:hover .add-icon::before {
+    left: 15px;
+    height: 4px;
+    top: calc(50% - 2px);
+}
+
+.add-botton:hover .add-icon::after {
+    right: 15px;
+    height: 4px;
+    top: calc(50% - 2px);
+}
+
+.users-container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    & > .user-card {
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: rgb(255, 255, 255);
+        padding: 2rem;
+        border-radius: 2rem;
+
+        & > img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+        }
+    }
+}
+//boton diseñado
+.btn-container {
+    display: flex;
+    justify-content: center;
+    position: fixed;
+    bottom: 20px;
+    margin-top: 20px;
+}
+
+.btn {
+    --color: #eb092f;
+    --color2: rgb(0, 0, 0);
+    padding: 0.8em 1.75em;
+    background-color: transparent;
+    border-radius: 6px;
+    border: .3px solid var(--color);
+    transition: .5s;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    z-index: 1;
+    font-weight: 300;
+    font-size: 17px;
+    font-family: 'Roboto', 'Segoe UI', sans-serif;
+    text-transform: uppercase;
+    color: var(--color);
+    margin-top: 400px;
+    margin-right: 160px;
+
+}
+
+
+.btn::after,
+.btn::before {
+    content: '';
+    display: block;
+    height: 100%;
+    width: 100%;
+    transform: skew(90deg) translate(-50%, -50%);
+    position: absolute;
+    inset: 50%;
+    left: 25%;
+    z-index: -1;
+    transition: .5s ease-out;
+    background-color: var(--color);
+}
+
+.btn::before {
+    top: -50%;
+    left: -25%;
+    transform: skew(90deg) rotate(180deg) translate(-50%, -50%);
+}
+
+.btn:hover::before {
+    transform: skew(45deg) rotate(180deg) translate(-50%, -50%);
+}
+
+.btn:hover::after {
+    transform: skew(45deg) translate(-50%, -50%);
+}
+
+.btn:hover {
+    color: var(--color2);
+}
+
+.btn:active {
+    filter: brightness(.7);
+    transform: scale(.98);
+}

@@ -1,0 +1,19 @@
+@import '../Variables/brakpoints.scss';
+
+//1st argument = breakpoint value
+//2n argument (optional) = ya sea el valor de breakpoint o the la palabra "max" para hacer un max witdh query
+@mixin respond-to($val, $val2: none) {
+    @if ($val2 == none) {
+        @media (min-width: $val) {
+            @content;
+        }
+    } @else if($val == max) {
+        @media (max-width: $val) {
+            @content;
+        }
+    } @else {
+        @media (min-width: $val) and (max-width: $val2) {
+            @content;
+        }
+    }
+}

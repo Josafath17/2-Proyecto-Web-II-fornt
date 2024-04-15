@@ -1,0 +1,10 @@
+
+@import './Styles/Variables/colors.scss';
+body {
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  background-color: $color-primario;
+}
+
+.App {
+  text-align: center;
+}
