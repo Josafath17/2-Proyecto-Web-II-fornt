@@ -3,10 +3,10 @@ import "./Home.scss";
 import User from "../User/User";
 import PinDisplay from "../PinDisplay/PinDisplay";
 import { useNavigate } from "react-router-dom";
-import Perfil from '../../Accets/Perfil-usuario.webp'
-import avatar1 from '../../Accets/1.jpg'
-import avatar2 from '../../Accets/2.jpg'
-import avatar3 from '../../Accets/3.jpg'
+import Perfil from "../../Accets/Perfil-usuario.webp";
+import avatar1 from "../../Accets/1.jpg";
+import avatar2 from "../../Accets/2.jpg";
+import avatar3 from "../../Accets/3.jpg";
 
 const Home = () => {
   const [showManageUsersPin, setShowManageUsersPin] = useState(false);
@@ -45,6 +45,7 @@ const Home = () => {
 
   const validateAdminPin = (pin) => {
     const userData = JSON.parse(localStorage.getItem("DataUser") || "{}");
+    console.log(userData)
 
     if (userData) {
       return userData.pin === Number(pin);
@@ -60,17 +61,17 @@ const Home = () => {
   console.log("Selected", selectedUser);
 
   const chargeAvatars = (avatar) => {
-    console.log(avatar)
+    console.log(avatar);
     if (avatar === "Avatar1") {
-      return avatar1
+      return avatar1;
     } else {
       if (avatar === "Avatar2") {
-        return avatar2
+        return avatar2;
       } else {
         if (avatar === "Avatar3") {
-          return avatar3
+          return avatar3;
         } else {
-          return Perfil
+          return Perfil;
         }
       }
     }

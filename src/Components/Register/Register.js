@@ -8,6 +8,7 @@ function Register() {
   const [logeado, setLogeado] = useState();
   const [username, setUsername] = useState();
   const [pin, setPin] = useState();
+  const [phone, setPhone] = useState();
   const [lastName, setLastName] = useState();
   const [firstName, setFirstName] = useState();
   const [birth_date, setBirth_date] = useState();
@@ -22,6 +23,7 @@ function Register() {
   const [errorRegister, setErrorRegister] = useState();
   const [errorDate, setErrorDate] = useState();
   const [errorPin, setErrorPin] = useState();
+  const [errorPhone, setErrorPhone] = useState();
   const [errorPassword, setErrorPassword] = useState();
 
   useEffect(() => {
@@ -50,6 +52,10 @@ function Register() {
       setErrorPin("El PIN debe tener 6 números");
       return;
     }
+    if (phone.length !== 12) {
+      setErrorPhone("Debe de ingresar un numero de telefono valido");
+      return;
+    }
 
     if (password !== confirmPassword) {
       setErrorPassword("Las contraseñas no coinciden");
@@ -72,14 +78,14 @@ function Register() {
       firstName: firstName,
       lastName: lastName,
       birth_date: brigt,
-      pin: parseInt(pin),
+      pin: pin,
+      phone: phone,
       country: country,
       username: username,
       password: password,
     };
     console.log(data);
     const urllogin = "http://localhost:3000/api/users";
-    console.log(1);
 
     await fetch(urllogin, {
       method: "POST",
@@ -229,6 +235,23 @@ function Register() {
     }
   };
 
+  const handlePhoneChange = (event) => {
+    let value = event.target.value;
+    // Si el primer carácter no es un '+', eliminar todos los caracteres no numéricos
+    if (value.charAt(0) !== '+') {
+      value = value.replace(/\D/g, "");
+    } else {
+      // Si el primer carácter es un '+', dejarlo como está y eliminar todos los caracteres no numéricos excepto el '+'
+      value = "+" + value.substring(1).replace(/\D/g, "");
+    }
+    setPhone(value);
+    if (value === event.target.value) {
+      setErrorPhone("");
+    }
+  };
+  
+  
+
 
   return (
     <>
@@ -332,7 +355,19 @@ function Register() {
               />
               <label htmlFor="">Pin</label>
             </div>
-
+            <div className="inputbox">
+              <ion-icon name="mail-outline"></ion-icon>
+              <input
+                type="text"
+                value={phone}
+                onChange={handlePhoneChange}
+                required
+                inputMode="numeric"
+                autoComplete="pin"
+                maxLength="13"
+              />
+              <label htmlFor="">Phone</label>
+            </div>
             <div className="inputbox">
               <ion-icon name="mail-outline"></ion-icon>
               <select

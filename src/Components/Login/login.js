@@ -2,43 +2,29 @@ import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.scss";
 import { AppContext } from "../../App";
+import PinDisplay from "../PinDisplay/PinDisplay";
 
 function Login() {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
-  const [datauser, setDatauser] = useState([]);
+  const [datauser, setDatauser] = useState({});
   const navigate = useNavigate();
   const [erroruser, setErroruser] = useState("");
+
+  const [showManageUsersPin, setShowManageUsersPin] = useState(false);
 
   const { logeado, setLogeado } = useContext(AppContext);
 
   useEffect(() => {
-    if (!!datauser.id) {
-      setLogeado(true);
-      setErroruser("");
-    }
+    // console.log("logueado")
+    // console.log(!!datauser.id)
+    // if (!!datauser.id) {
+    //   localStorage.setItem("DataUser", JSON.stringify(datauser));
+    //   navigate("/Home");
+    // }
+  }, [navigate, datauser, setDatauser]);
 
-    if (logeado) {
-      localStorage.setItem("token", true);
-      localStorage.setItem("DataUser", JSON.stringify(datauser));
-      navigate("/Home");
-    }
-  }, [logeado, navigate, setLogeado, datauser]);
-
-  const Confirm = (usertrue, passwordtrue) => {
-    if (usertrue == email && passwordtrue == password) {
-      return true;
-    } else {
-      console.log("no se encontro");
-      return false;
-    }
-  };
-
-  const esCorreoValido = (correo) => {
-    var regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/;
-    return regex.test(correo);
-  };
-  const Validar = () => {
+  const Validar = async () => {
     if (!email || !password) {
       if (!email && password) {
         alert("Favor introducir un Email");
@@ -50,11 +36,16 @@ function Login() {
         alert("Favor Llenar los campos");
       }
     } else {
-      fetch("http://localhost:3000/api/users", {
-        method: "GET",
+      const data = {
+        username: email,
+        password: password,
+      };
+      await fetch("http://localhost:3000/api/session", {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        body: JSON.stringify(data),
       })
         .then((response) => {
           if (!response.ok) {
@@ -63,27 +54,72 @@ function Login() {
           return response.json();
         })
         .then((data) => {
-          data.forEach((user) => {
-            if (esCorreoValido(email)) {
-              if (Confirm(user.username, user.password)) {
-                setDatauser(user);
-                setLogeado(true);
-                return;
-              }
-              setErroruser("EL usurio o contraseña son invalidos");
-            }
-          });
+          console.log("Exito");
+          console.log(data);
+          localStorage.setItem("token", data);
+          setShowManageUsersPin(true);
         })
 
         .catch((err) => {
           console.log("error: " + err);
-          alert("Datos incorrectos");
+          setErroruser("EL usurio o contraseña son invalidos");
         });
     }
   };
 
+  const Verificar = async (pin) => {
+    let respuesta;
+    const token = localStorage.getItem("token");
+    const data = {
+      code: pin,
+    };
+    await fetch("http://localhost:3000/api/authorization", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Exito valido");
+        console.log(data);
+        const user = {
+          id: data.user.id,
+          pin: data.user.pin,
+          firstName: data.user.firstName,
+          lastName: data.user.lastName,
+        };
+        console.log(user);
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("DataUser", JSON.stringify(user));
+        localStorage.setItem("logeado", true);
+        setLogeado(true);
+        respuesta = true;
+      })
+
+      .catch((err) => {
+        console.log("error: " + err);
+        alert("Codigo no valido");
+        respuesta = false;
+      });
+    return respuesta;
+  };
+
   return (
     <>
+      <PinDisplay
+        show={showManageUsersPin}
+        setShow={setShowManageUsersPin}
+        validatePin={(pin) => Verificar(pin)}
+        onSuccess={() => navigate("/Home")}
+      />
       <div className="boddylogin">
         <div id="hero">
           <div className="container1">
@@ -92,12 +128,11 @@ function Login() {
               <div className="errormesage">
                 <p>{erroruser}</p>
               </div>
-              
 
               <div className="tex_field">
                 <input
                   className="email"
-                  type="text"
+                  type="mail"
                   onChange={(ev) => setEmail(ev.target.value)}
                   required
                 />

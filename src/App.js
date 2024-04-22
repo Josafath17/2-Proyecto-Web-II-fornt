@@ -1,12 +1,13 @@
 import './App.scss';
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 import Login from "./Components/Login/login";
 import Home from "./Components/Home/Home";
 import Register from "./Components/Register/Register";
 import ManageUsers from './Components/ManageUsers/ManageUsers';
 import ManageVideos from './Components/ManageVideos/ManageVideos';
 import Playlist from './Components/Playlist/Playlist';
+import Confirm from './Components/Confirm/Confirm';
 
 
 
@@ -17,7 +18,11 @@ export { AppContext };
 
 function App() {
 
-  const [logeado, setLogeado] = useState(localStorage.getItem('token'));
+  const [logeado, setLogeado] = useState(localStorage.getItem('logeado'));
+
+  useEffect(()=>{
+    setLogeado(localStorage.getItem('logeado'))
+  },[logeado, setLogeado])
 
 
 
@@ -27,17 +32,18 @@ function App() {
         <div className="Components">
           <Routes>
             <Route path="/" element={logeado ? <Navigate to="/Home" /> : <Navigate to="/Login" />} />
-            <Route path="/Login" element={
-              <AppContext.Provider value={{ logeado, setLogeado }}>
+            <Route path="/Login" element={ logeado ?
+              (<Navigate to="/" />)
+              : (<AppContext.Provider value={{ logeado, setLogeado }}>
                 <Login />
-              </AppContext.Provider>
+              </AppContext.Provider>)
             } />
             <Route path="/Home" element={
               logeado ? (
                 <AppContext.Provider value={{ logeado, setLogeado }}>
                   <Home />
-                </AppContext.Provider>
-              ) : (<Navigate to="/" />)
+                </AppContext.Provider>) 
+              : (<Navigate to="/" />)
             } />
             <Route
               path='/Register'
@@ -64,7 +70,9 @@ function App() {
                 </AppContext.Provider>
               ) : (<Navigate to="/" />)
             } />
-
+            <Route 
+              path="/ConfirmAccount/:id" 
+              element={<Confirm />} />
           </Routes>
         </div>
       </div>
