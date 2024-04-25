@@ -118,7 +118,7 @@ function Login() {
         show={showManageUsersPin}
         setShow={setShowManageUsersPin}
         validatePin={(pin) => Verificar(pin)}
-        onSuccess={() => navigate("/Home")}
+        onSuccess={() => {}}
       />
       <div className="boddylogin">
         <div id="hero">

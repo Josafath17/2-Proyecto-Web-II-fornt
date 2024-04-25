@@ -9,6 +9,8 @@ import avatar2 from "../../Accets/2.jpg";
 import avatar3 from "../../Accets/3.jpg";
 
 const Home = () => {
+  const token = localStorage.getItem("token");
+  const Userinfo = JSON.parse(localStorage.getItem("DataUser"));
   const [showManageUsersPin, setShowManageUsersPin] = useState(false);
   const [showManageVideosPin, setShowManageVideosPin] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -16,36 +18,36 @@ const Home = () => {
 
   const [users, setUsers] = useState([]);
   useEffect(() => {
-    const fetchData = async () => {
-      const urllogin = "http://localhost:3000/api/accounts";
+    const chargeAccounts = async () => {
+      // Lógica para obtener la lista de usuarios al cargar el componente
+      const urllogin = `http://localhost:3001/graphql`;
       try {
         const response = await fetch(urllogin, {
-          method: "GET",
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
+            authorization: `Bearer ${token}`,
           },
+          body: JSON.stringify({
+            query: `query { getAccountsUser(iduser: "${Userinfo.id}") {id firstName avatar age pin} }`,
+          }),
         });
 
         if (!response.ok) {
-          const errorData = await response.json();
-          console.log(errorData.error);
-          throw new Error("Network response was not ok");
+          throw new Error("Error fetching users");
         }
-
-        const data = await response.json();
-        console.log(data);
-        setUsers(data);
+        const { data } = await response.json();
+        setUsers(data.getAccountsUser);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
-
-    fetchData();
+    chargeAccounts();
   }, []);
 
   const validateAdminPin = (pin) => {
     const userData = JSON.parse(localStorage.getItem("DataUser") || "{}");
-    console.log(userData)
+    console.log(userData);
 
     if (userData) {
       return userData.pin === Number(pin);
@@ -57,11 +59,7 @@ const Home = () => {
       return selectedUser.pin === Number(pin);
     } else return false;
   };
-
-  console.log("Selected", selectedUser);
-
   const chargeAvatars = (avatar) => {
-    console.log(avatar);
     if (avatar === "Avatar1") {
       return avatar1;
     } else {
@@ -89,14 +87,14 @@ const Home = () => {
       <PinDisplay
         show={showManageVideosPin}
         setShow={setShowManageVideosPin}
-        onSuccess={() => navigate("/manage-videos")}
+        onSuccess={() => navigate("/manage-playlists")}
         validatePin={validateAdminPin}
       />
 
       <PinDisplay
         show={Boolean(selectedUser?.pin)}
         setShow={setSelectedUser}
-        onSuccess={() => navigate("/playlist")}
+        onSuccess={() => navigate("/playlists")}
         validatePin={validateUserPin}
       />
 
@@ -130,7 +128,7 @@ const Home = () => {
       </div>
 
       <button className="btn" onClick={() => setShowManageVideosPin(true)}>
-        Administrar videos
+        Administrar playlist
       </button>
     </div>
   );

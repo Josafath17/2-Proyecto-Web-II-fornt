@@ -1,22 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom"; // Importa Link desde react-router-dom
-import "./ManageVideos.scss";
+import { Link, useNavigate } from "react-router-dom"; // Importa Link desde react-router-dom
+import "./ManagePlaylists.scss";
 import Table from "../Table/Table";
 import Modal from "../Modal/Modal";
 import { wait } from "@testing-library/user-event/dist/utils";
 
-const AddOrUpdateVideo = ({ handleClose, type, playlist, video }) => {
+const AddOrUpdatePlaylist = ({ handleClose, type, playlist }) => {
   const token = localStorage.getItem("token");
   const User = JSON.parse(localStorage.getItem("DataUser"));
-  const [name, setName] = useState(video.name);
-  const [url, setUrl] = useState(video.url);
-  const [description, setDescription] = useState(video.description);
+  const [name, setName] = useState(playlist.name);
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     name: name,
-    url: url,
-    description: description,
-    playlist: playlist.id,
+    user: User.id,
   });
 
   const handleSubmit = async (e) => {
@@ -25,15 +22,14 @@ const AddOrUpdateVideo = ({ handleClose, type, playlist, video }) => {
     console.log("Form values:", formData);
 
     if (type === "add") {
-      console.log();
-      addvidoe();
+      addplaylist();
     } else {
-      updatevidoe(video.id);
+      updateplaylist(playlist.id);
     }
   };
 
-  const addvidoe = async () => {
-    const urllogin = `http://localhost:3000/api/videos`;
+  const addplaylist = async () => {
+    const urllogin = `http://localhost:3000/api/playlists`;
     try {
       const response = await fetch(urllogin, {
         method: "POST",
@@ -55,8 +51,8 @@ const AddOrUpdateVideo = ({ handleClose, type, playlist, video }) => {
     }
   };
 
-  const updatevidoe = async (videoid) => {
-    const urllogin = `http://localhost:3000/api/videos?id=${videoid}`;
+  const updateplaylist = async (playlistsid) => {
+    const urllogin = `http://localhost:3000/api/playlists?id=${playlistsid}`;
     try {
       const response = await fetch(urllogin, {
         method: "PATCH",
@@ -79,7 +75,6 @@ const AddOrUpdateVideo = ({ handleClose, type, playlist, video }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    console.log(value)
 
     setFormData({ ...formData, [name]: value });
   };
@@ -87,33 +82,32 @@ const AddOrUpdateVideo = ({ handleClose, type, playlist, video }) => {
   return (
     <div className="add-or-update-video">
       <div>
-        <h1>{type === "add" ? "Agregar" : "Actualizar"} video</h1>
+        <h1>{type === "add" ? "Agregar" : "Actualizar"} playlist</h1>
       </div>
       <form onSubmit={handleSubmit}>
         <input
           name="name"
           type="text"
-          placeholder="Nombre del video"
+          placeholder="Nombre de la playlist"
           required
           value={formData.name}
           onChange={handleInputChange}
         />
-        <input
-          name="url"
-          type="text"
-          required
-          placeholder="Url del video"
-          value={formData.url}
-          onChange={handleInputChange}
-        />
-        <input
-          name="description"
-          type="text"
-          placeholder="Descripccion del video"
-          value={formData.description}
-          onChange={handleInputChange}
-        />
+
         <div className="buttons">
+          {type === "edit" ? (
+            <button
+              onClick={() => {
+                localStorage.setItem("PlaylistEdit", JSON.stringify(playlist));
+                navigate("/manage-videos");
+              }}
+            >
+              Editar Videos
+            </button>
+          ) : (
+            <></>
+          )}
+
           <button onClick={handleClose}>Cancelar</button>
           <button type="submit">Guardar</button>
         </div>
@@ -122,13 +116,12 @@ const AddOrUpdateVideo = ({ handleClose, type, playlist, video }) => {
   );
 };
 
-const ManageVideos = () => {
+const ManagePlaylists = () => {
   const token = localStorage.getItem("token");
   const User = JSON.parse(localStorage.getItem("DataUser"));
-  const playlist = JSON.parse(localStorage.getItem("PlaylistEdit"));
   const [modalType, setModalType] = useState("");
-  const [videos, setVideos] = useState([]);
-  const [video, setVideo] = useState([]);
+  const [playlists, setPlaylists] = useState([]);
+  const [playlist, setPlaylist] = useState();
 
   useEffect(() => {
     const chargeplaylists = async () => {
@@ -141,7 +134,7 @@ const ManageVideos = () => {
             authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            query: `query { getVideosPlaylist(idplaylist: "${playlist.id}") {id name url description} }`,
+            query: `query { getPlaylistsUser(iduser: "${User.id}") {id name} }`,
           }),
         });
 
@@ -151,7 +144,7 @@ const ManageVideos = () => {
           throw new Error("Network response was not ok");
         }
         const { data } = await response.json();
-        setVideos(data.getVideosPlaylist);
+        setPlaylists(data.getPlaylistsUser);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -161,8 +154,8 @@ const ManageVideos = () => {
     console.log();
   }, []);
 
-  const handleDelete = async (videoid) => {
-    const urllogin = `http://localhost:3000/api/videos?id=${videoid}`;
+  const handleDelete = async (playlistsid) => {
+    const urllogin = `http://localhost:3000/api/playlists?id=${playlistsid}`;
     try {
       const response = await fetch(urllogin, {
         method: "DELETE",
@@ -186,42 +179,36 @@ const ManageVideos = () => {
   return (
     <div className="manage-videos-container">
       <Modal show={modalType} handleClose={() => setModalType("")}>
-        <AddOrUpdateVideo
-          video={video}
+        <AddOrUpdatePlaylist
           type={modalType}
           handleClose={() => setModalType("")}
-          videoId={video._id}
           playlist={playlist}
         />
       </Modal>
       <div className="titulo">
-        <h1>{playlist.name}</h1>
+        <h1>Playlists</h1>
       </div>
 
       <Table
-        data={videos}
-        headers={["Nombre", "Url", "Descripccion"]}
+        data={playlists}
+        headers={["Nombre"]}
         onEditClick={() => {
-          // const playlist = playlists.filter(
-          //   (playlist) => playlist._id === video.playlist
-          // );
-          // setPlaylist(playlist);
           setModalType("edit");
         }}
         onDeleteClick={handleDelete}
-        setAccount={setVideo}
+        setAccount={setPlaylist}
       />
       <button
         onClick={() => {
           setModalType("add");
-          setVideo([]);
+          setPlaylist({});
         }}
       >
-        Agregar video
+        Agregar playlist
       </button>
 
       <div className="button-container">
-        <Link to="/manage-playlists">
+        <Link to="/">
           <button className="button">
             <div className="button-box">
               <span className="button-elem">
@@ -242,4 +229,4 @@ const ManageVideos = () => {
   );
 };
 
-export default ManageVideos;
+export default ManagePlaylists;

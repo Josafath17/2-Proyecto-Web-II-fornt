@@ -5,7 +5,9 @@ import Login from "./Components/Login/login";
 import Home from "./Components/Home/Home";
 import Register from "./Components/Register/Register";
 import ManageUsers from './Components/ManageUsers/ManageUsers';
+import ManagePlaylists from './Components/ManagePlaylists/ManagePlaylists';
 import ManageVideos from './Components/ManageVideos/ManageVideos';
+import Playlists from './Components/Playlists/Playlists';
 import Playlist from './Components/Playlist/Playlist';
 import Confirm from './Components/Confirm/Confirm';
 
@@ -60,6 +62,20 @@ function App() {
               logeado ? (
                 <AppContext.Provider value={{ logeado, setLogeado }}>
                   <ManageVideos />
+                </AppContext.Provider>
+              ) : (<Navigate to="/" />)
+            } />
+            <Route path="/manage-playlists" element={
+              logeado ? (
+                <AppContext.Provider value={{ logeado, setLogeado }}>
+                  <ManagePlaylists />
+                </AppContext.Provider>
+              ) : (<Navigate to="/" />)
+            } />
+            <Route path="/playlists" element={
+              logeado ? (
+                <AppContext.Provider value={{ logeado, setLogeado }}>
+                  <Playlists />
                 </AppContext.Provider>
               ) : (<Navigate to="/" />)
             } />

@@ -1,4 +1,19 @@
+@import "../../Styles/Mixins/media-queries.scss";
+@import "../../Styles/Variables/brakpoints.scss";
+
 .Confirm_cart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 1.5vh;
+  min-height: 100vh;
+  background-image: url("../../Accets/fondo-dibujos-animados-3d-ninos_23-2150473128.avif");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+
+
+
   width: 100%;
   height: 100vh;
   display: flex;

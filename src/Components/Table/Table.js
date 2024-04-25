@@ -17,7 +17,7 @@ const Table = ({ headers, data, onEditClick, onDeleteClick, setAccount }) => {
           <tr key={index}>
             {Object.values(row).map((value, index) => {
               const pregunta = !(
-                index === 0 || (!!row.url ? index === 3 : false)
+                index === 0
               );
               return pregunta ? <td key={index}>{value}</td> : <></>;
             })}

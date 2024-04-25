@@ -4,7 +4,203 @@ import { Link } from "react-router-dom";
 import Table from "../Table/Table";
 import Modal from "../Modal/Modal";
 
+const TablePlaylist = ({ type, headers, data, onplaylistClick }) => {
+  return (
+    <table>
+      <thead>
+        <tr>
+          {headers.map((header, index) => (
+            <th key={index}>{header}</th>
+          ))}
+          <th colSpan="2">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((row, index) => (
+          <tr key={index}>
+            {Object.values(row).map((value, index) => {
+              const pregunta = !(index === 0);
+              return pregunta ? <td key={index}>{value}</td> : <></>;
+            })}
+            <td>
+              {type === "agregar" ? (
+                <button onClick={() => onplaylistClick(row.id)}>{type}</button>
+              ) : (
+                <button onClick={() => onplaylistClick(row.id)}>{type}</button>
+              )}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+};
+
+const AddOrDeletePlaylist = ({ handleClose, type, account }) => {
+  const token = localStorage.getItem("token");
+  const User = JSON.parse(localStorage.getItem("DataUser") || "{}");
+  const Account = JSON.parse(localStorage.getItem("AccountEdit") || "{}");
+  const [playlistAccount, setPlaylistAccount] = useState([]);
+  const [playlistUser, setPlaylistUser] = useState([]);
+  const [active, setAcvtive] = useState(false);
+
+  useEffect(() => {
+    const chargeAccounts = async () => {
+      // Lógica para obtener la lista de usuarios al cargar el componente
+      const urllogin = `http://localhost:3001/graphql`;
+      try {
+        const response = await fetch(urllogin, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            query: `query { getAccount(id: "${Account.id}") {playlists}, getPlaylistsUser(iduser: "${User.id}") {id name} } `,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Error fetching users");
+        }
+        const { data } = await response.json();
+
+        // Eliminar las playlists que están en data.getPlaylistsUser de la lista de playlists
+        const filteredPlaylists = data.getPlaylistsUser.filter((playlist) => {
+          return !data.getAccount.playlists.some(
+            (playlistId) => playlist.id === playlistId
+          );
+        });
+
+        const playlistPromises = data.getAccount.playlists.map(
+          async (playlistid) => {
+            return await chargeplayistaccount(playlistid);
+          }
+        );
+        const playlists = await Promise.all(playlistPromises);
+
+        setPlaylistAccount(playlists);
+        setPlaylistUser(filteredPlaylists);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    const chargeplayistaccount = async (playlistId) => {
+      const urllogin = `http://localhost:3001/graphql`;
+      const response = await fetch(urllogin, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          query: `query { getPlaylist(id: "${playlistId}") {id name} } `,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error("Error fetching users");
+      }
+      const { data } = await response.json();
+      return data.getPlaylist;
+    };
+
+    chargeAccounts();
+  }, [active]);
+
+  const addPlaylist = async (playlistId) => {
+    const urlAccount = `http://localhost:3000/api/accountsplaylists?id=${Account.id}`;
+
+    await fetch(urlAccount, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        playlist: playlistId,
+      }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          response.json().then((errorData) => {
+            console.log(errorData.error);
+          });
+
+          throw new Error("Network response was not ok");
+        }
+
+        return response.json();
+      })
+      .then((data) => {
+        setAcvtive(!active)
+        // window.location.reload();
+      })
+      .catch((err) => {
+        console.error(err);
+        // Manejar errores de manera apropiada
+      });
+  };
+  const deleteplaylist = async (playlistId) => {
+    const urlaccount = `http://localhost:3000/api/accountsplaylists?id=${Account.id}`;
+
+    await fetch(urlaccount, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        playlist: playlistId,
+      }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          response.json().then((errorData) => {
+            console.log(errorData.error);
+          });
+
+          throw new Error("Network response was not ok");
+        }
+
+        return response.json();
+      })
+      .then((data) => {
+        setAcvtive(!active)
+        // window.location.reload();
+      })
+      .catch((err) => {
+        /* setErrorRegister(err.message); */
+      });
+  };
+
+  return (
+    <div className="add-or-update-user">
+      <h1>Editar playlist asignadas</h1>
+      <h2>Añadidas</h2>
+      <TablePlaylist
+        type="eliminar"
+        data={playlistAccount}
+        headers={["Nombre"]}
+        onplaylistClick={deleteplaylist}
+      />
+      <h2>Restantes</h2>
+      <TablePlaylist
+        type="agregar"
+        data={playlistUser}
+        headers={["Nombre"]}
+        onplaylistClick={addPlaylist}
+      />
+
+      <button type="button" onClick={handleClose}>
+        Cancelar
+      </button>
+    </div>
+  );
+};
+
 const AddOrUpdateVideo = ({ handleClose, type, account }) => {
+  const token = localStorage.getItem("token");
+  const [modalType, setModalType] = useState("");
   const [firstName, setFirstName] = useState(account.firstName);
   const [avatar, setAvatar] = useState(account.avatar);
   const [age, setAge] = useState(account.age);
@@ -16,9 +212,8 @@ const AddOrUpdateVideo = ({ handleClose, type, account }) => {
     avatar: avatar,
     age: age,
     pin: pin,
-    user: userData._id,
+    user: userData.id,
   });
-  console.log(formData.avatar);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -40,6 +235,7 @@ const AddOrUpdateVideo = ({ handleClose, type, account }) => {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
+        authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(formData),
     })
@@ -84,6 +280,7 @@ const AddOrUpdateVideo = ({ handleClose, type, account }) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(formData),
     })
@@ -111,6 +308,17 @@ const AddOrUpdateVideo = ({ handleClose, type, account }) => {
 
   return (
     <div className="add-or-update-user">
+      <Modal show={modalType} handleClose={() => setModalType("")}>
+        {
+          <AddOrDeletePlaylist
+            account={account}
+            type={modalType}
+            handleClose={() => setModalType("")}
+            accountId={account._id}
+          />
+        }
+      </Modal>
+
       <h1>{type === "add" ? "Agregar" : "Actualizar"} usuario</h1>
 
       <form onSubmit={handleSubmit}>
@@ -151,6 +359,19 @@ const AddOrUpdateVideo = ({ handleClose, type, account }) => {
         />
 
         <div className="buttons">
+          {type === "edit" ? (
+            <button
+              type="button"
+              onClick={() => {
+                localStorage.setItem("AccountEdit", JSON.stringify(account));
+                setModalType("edit");
+              }}
+            >
+              Editar Playlist
+            </button>
+          ) : (
+            <></>
+          )}
           <button type="button" onClick={handleClose}>
             Cancelar
           </button>
@@ -163,37 +384,37 @@ const AddOrUpdateVideo = ({ handleClose, type, account }) => {
 };
 
 const ManageUsers = () => {
+  const token = localStorage.getItem("token");
+  const User = JSON.parse(localStorage.getItem("DataUser"));
   const [modalType, setModalType] = useState("");
   const [users, setUsers] = useState([]);
   const [accounts, setAccounts] = useState([]);
   useEffect(() => {
-    // Lógica para obtener la lista de usuarios al cargar el componente
-    fetch("http://localhost:3000/api/accounts")
-      .then((response) => {
+    const chargeAccounts = async () => {
+      // Lógica para obtener la lista de usuarios al cargar el componente
+      const urllogin = `http://localhost:3001/graphql`;
+      try {
+        const response = await fetch(urllogin, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            query: `query { getAccountsUser(iduser: "${User.id}") {id firstName avatar age pin} }`,
+          }),
+        });
+
         if (!response.ok) {
           throw new Error("Error fetching users");
         }
-        return response.json();
-      })
-
-      .then((data) => {
-        const accountfilter = [];
-        data.forEach((account) => {
-          // Utilizar la función Confirm y setDatauser
-          accountfilter.push({
-            id: account._id,
-            firstName: account.firstName,
-            avatar: account.avatar,
-            age: account.age,
-            pin: account.pin,
-          });
-        });
-        setUsers(data);
-        setAccounts(accountfilter);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+        const { data } = await response.json();
+        setAccounts(data.getAccountsUser);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    chargeAccounts();
   }, []);
 
   const handleDelete = async (userId) => {
@@ -203,6 +424,7 @@ const ManageUsers = () => {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
+        authorization: `Bearer ${token}`,
       },
     })
       .then((response) => {
@@ -214,9 +436,8 @@ const ManageUsers = () => {
 
           throw new Error("Network response was not ok");
         }
-        console.log(4);
         window.location.reload();
-        return
+        return;
       })
       .catch((err) => {
         /* setErrorRegister(err.message); */
